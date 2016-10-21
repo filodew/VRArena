@@ -18,7 +18,7 @@ namespace VRStandardAssets.Utils
             LEFT,
             RIGHT
         };
-
+            
         public bool MouseControl = false;
 
         public event Action<SwipeDirection> OnSwipe;                // Wywoływana każda klatka przekazując swipe, w tym jeśli nie ma machnięcia(swipe).
