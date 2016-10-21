@@ -19,6 +19,7 @@ namespace VRStandardAssets.Utils
             RIGHT
         };
 
+        public bool MouseControl = false;
 
         public event Action<SwipeDirection> OnSwipe;                // Wywoływana każda klatka przekazując swipe, w tym jeśli nie ma machnięcia(swipe).
         public event Action OnClick;                                // Wywoływana, gdy Fire1 zostaje zwolniony i nie jest to podwójne kliknięcie.
@@ -39,9 +40,24 @@ namespace VRStandardAssets.Utils
         private float m_LastHorizontalValue;                        // Poprzednia wartość osi poziomej wykorzystywane do wykrywania swipes klawiszowych.
         private float m_LastVerticalValue;                          // Poprzednia wartość osi pionowej wykorzystywane do wykrywania swipes klawiszowych.
 
+        // MOUSE MOVEMENT
+        private Transform CameraTransform = null;
+        // ~MOUSE MOVEMENT
 
         public float DoubleClickTime{ get { return m_DoubleClickTime; } }
 
+        private void Start()
+        {
+            if (CameraTransform == null)
+            {
+                CameraTransform = transform;
+            }
+            if (MouseControl == true)
+            {
+                Cursor.lockState = CursorLockMode.Locked;
+                Cursor.visible = false;
+            }
+        }
 
         private void Update()
         {
@@ -51,6 +67,7 @@ namespace VRStandardAssets.Utils
 
         private void CheckInput()
         {
+            
             // Ustaw domyślnie swipe być 'none'.
             SwipeDirection swipe = SwipeDirection.NONE;
 
@@ -132,9 +149,17 @@ namespace VRStandardAssets.Utils
            //     if (OnCancel != null)
            //         OnCancel();
            // }
+
+            if (MouseControl == true)
+            {
+                float tiltX = Input.GetAxis("Mouse X");
+                float tiltY = Input.GetAxis("Mouse Y");
+
+                transform.Rotate(-tiltY, tiltX, 0);
+            }
+
         }
-
-
+            
         private SwipeDirection DetectSwipe ()
         {
             // Get the direction from the mouse position when Fire1 is pressed to when it is released.
