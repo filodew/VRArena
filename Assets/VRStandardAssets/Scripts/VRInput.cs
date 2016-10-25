@@ -40,11 +40,20 @@ namespace VRStandardAssets.Utils
         private float m_LastHorizontalValue;                        // Poprzednia wartość osi poziomej wykorzystywane do wykrywania swipes klawiszowych.
         private float m_LastVerticalValue;                          // Poprzednia wartość osi pionowej wykorzystywane do wykrywania swipes klawiszowych.
 
+        private bool _ShootingDisabled = false;
+
         // MOUSE MOVEMENT
         private Transform CameraTransform = null;
         // ~MOUSE MOVEMENT
 
         public float DoubleClickTime{ get { return m_DoubleClickTime; } }
+        public float SwipeDistance{ get { return Vector3.Distance(m_MouseDownPosition, m_MouseUpPosition); } }
+
+        public bool ShootingDisabled
+        {
+            get{ return _ShootingDisabled; }
+            set{ _ShootingDisabled = value; }
+        }
 
         private void Start()
         {
@@ -67,88 +76,92 @@ namespace VRStandardAssets.Utils
 
         private void CheckInput()
         {
-            
-            // Ustaw domyślnie swipe być 'none'.
-            SwipeDirection swipe = SwipeDirection.NONE;
-
-            if (Input.GetButtonDown("Fire1"))
+            if (_ShootingDisabled == false)
             {
-				// Gdy Fire1 jest wciśnięty nagrywaj(wykrywaj(record)) pozycję myszy.
-                m_MouseDownPosition = new Vector2(Input.mousePosition.x, Input.mousePosition.y);
+                
+                // Ustaw domyślnie swipe być 'none'.
+                SwipeDirection swipe = SwipeDirection.NONE;
+
+                if (Input.GetButtonDown("Fire1"))
+                {
+                    // Gdy Fire1 jest wciśnięty nagrywaj(wykrywaj(record)) pozycję myszy.
+                    m_MouseDownPosition = new Vector2(Input.mousePosition.x, Input.mousePosition.y);
             
-                // Jeśli coś zostało objęte OnDown wezwać (odwołać do tego) to.
-                if (OnDown != null)
-                    OnDown();
-			/*	else if (Physics.Raycast(ray, out hit, m_RayLength, ~m_ExclusionLayers))
+                    // Jeśli coś zostało objęte OnDown wezwać (odwołać do tego) to.
+                    if (OnDown != null)
+                        OnDown();
+                    /*	else if (Physics.Raycast(ray, out hit, m_RayLength, ~m_ExclusionLayers))
 
 			
 			 {
                 VRInteractiveCube interactible = hit.collider.GetComponent<VRInteractiveCube>(); //Próba uzyskania dostęp do VRInteractiveCube na objekcie udeżonym.
                 m_CurrentInteractible = interactible; 
              */
-            }
-
-            // Ten if jest zebranie informacji o myszy, gdy przycisk jest w górze.
-            if (Input.GetButtonUp ("Fire1"))
-            {
-                // Gdy Fire1 jest wyzwolony nagrywaj(wykrywaj(record)) pozycję myszy.
-                m_MouseUpPosition = new Vector2 (Input.mousePosition.x, Input.mousePosition.y);
-
-                // Wykrywa kierunek między położeniami myszy, gdy Fire1 zostanie naciśnięty i zwolniony.
-                swipe = DetectSwipe ();
-            }
-
-            // Jeśli nie było machnięcia ta ramka z myszą, sprawdź machnięcia klawiatury.
-            if (swipe == SwipeDirection.NONE)
-                swipe = DetectKeyboardEmulatedSwipe();
-
-            // Jeśli są jacyś subskrybenci OnSwipe wezwać je przekazując wykryte machnięce.
-            if (OnSwipe != null)
-                OnSwipe(swipe);
-
-            // Ten if ma wyzwalać zdarzenia w oparciu o informacje zebrane wcześniej. | This if statement is to trigger events based on the information gathered before.
-            if(Input.GetButtonUp ("Fire1"))
-            {
-                // Jeśli coś zostało objęte OnUp to wzywa to. | If anything has subscribed to OnUp call it.
-                if (OnUp != null)
-                    OnUp();
-
-                // Jeżeli czas pomiędzy ostatnim zwolnieniem Fire 1, a teraz jest mniejszy
-                // niż dozwolony czas podwójnego kliknięcia to jest to podwójne kliknięcie.
-                if (Time.time - m_LastMouseUpTime < m_DoubleClickTime)
-                {
-                    // Jeśli są jacyś subskrybenci OnDoubleClick wezwać (odwołać do tego) to.
-                    if (OnDoubleClick != null)
-                        OnDoubleClick();
-                    //to nie jest użyte w tym projekci, ale jest gotowy inny sampel. zaraz go otworze
-                }
-                else
-                {
-                    // Jeśli to nie jest podwójne kliknięcie, to jest to jednym kliknięciem.
-                    // If anything has subscribed to OnClick wezwać (odwołać do tego) to
-                    if (OnClick != null)
-                        OnClick();
                 }
 
-                // Record the time when Fire1 is released.
-                m_LastMouseUpTime = Time.time;
-            }
+                // Ten if jest zebranie informacji o myszy, gdy przycisk jest w górze.
+                if (Input.GetButtonUp("Fire1"))
+                {
+                    // Gdy Fire1 jest wyzwolony nagrywaj(wykrywaj(record)) pozycję myszy.
+                    m_MouseUpPosition = new Vector2(Input.mousePosition.x, Input.mousePosition.y);
 
-			// UWAGA TEST
-			if (Time.time - m_OnLongDown  >= m_OnLongDown)
-			{
+                    // Wykrywa kierunek między położeniami myszy, gdy Fire1 zostanie naciśnięty i zwolniony.
+                    swipe = DetectSwipe();
+                }
+
+                // Jeśli nie było machnięcia ta ramka z myszą, sprawdź machnięcia klawiatury.
+                if (swipe == SwipeDirection.NONE)
+                    swipe = DetectKeyboardEmulatedSwipe();
+
+                // Jeśli są jacyś subskrybenci OnSwipe wezwać je przekazując wykryte machnięce.
+                if (OnSwipe != null)
+                    OnSwipe(swipe);
+
+                // Ten if ma wyzwalać zdarzenia w oparciu o informacje zebrane wcześniej. | This if statement is to trigger events based on the information gathered before.
+                if (Input.GetButtonUp("Fire1"))
+                {
+                    // Jeśli coś zostało objęte OnUp to wzywa to. | If anything has subscribed to OnUp call it.
+                    if (OnUp != null)
+                        OnUp();
+
+                    // Jeżeli czas pomiędzy ostatnim zwolnieniem Fire 1, a teraz jest mniejszy
+                    // niż dozwolony czas podwójnego kliknięcia to jest to podwójne kliknięcie.
+                    if (Time.time - m_LastMouseUpTime < m_DoubleClickTime)
+                    {
+                        // Jeśli są jacyś subskrybenci OnDoubleClick wezwać (odwołać do tego) to.
+                        if (OnDoubleClick != null)
+                            OnDoubleClick();
+                        //to nie jest użyte w tym projekci, ale jest gotowy inny sampel. zaraz go otworze
+                    }
+                    else
+                    {
+                        // Jeśli to nie jest podwójne kliknięcie, to jest to jednym kliknięciem.
+                        // If anything has subscribed to OnClick wezwać (odwołać do tego) to
+                        if (OnClick != null)
+                            OnClick();
+                    }
+
+                    // Record the time when Fire1 is released.
+                    m_LastMouseUpTime = Time.time;
+                }
+
+                // UWAGA TEST
+                if (Time.time - m_OnLongDown >= m_OnLongDown)
+                {
 				
-				if (OnLongDown != null)
+                    if (OnLongDown != null)
                         OnLongDown();
-			}
+                }
 
 
-            // Jeśli przycisk Cancel zostanie wciśnięty i jeśli są jacyś subskrybenci OnCancel call it.
-          // if (Input.GetButtonDown("Cancel"))
-           // {
-           //     if (OnCancel != null)
-           //         OnCancel();
-           // }
+                // Jeśli przycisk Cancel zostanie wciśnięty i jeśli są jacyś subskrybenci OnCancel call it.
+                // if (Input.GetButtonDown("Cancel"))
+                // {
+                //     if (OnCancel != null)
+                //         OnCancel();
+                // }
+
+            }
 
             if (MouseControl == true)
             {
