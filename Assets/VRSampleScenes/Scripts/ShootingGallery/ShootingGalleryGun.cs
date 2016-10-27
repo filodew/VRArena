@@ -68,10 +68,16 @@ namespace VRStandardAssets.ShootingGallery
         private void HandleDown ()
         {
             // If the game isn't playing don't do anything.
-            if (!m_ShootingGalleryController.IsPlaying || m_EyeRaycaster.bPointsAtFriend == true)
+            if (!m_ShootingGalleryController.IsPlaying)
                 return;
 
-
+            if (m_EyeRaycaster.CurrentInteractible != null)
+            {
+                if (m_EyeRaycaster.CurrentInteractible.GetComponent<CubeObject>())
+                {
+                    return;
+                }
+            }
             //W przeciwnym razie, jeśli jest niepodatny obecnie sprawdzany, spróbuj znaleźć w jego skłądzie komponent: Shooting target | Otherwise, if there is an interactible currently being looked at, try to find it's ShootingTarget component.
             ShootingTarget  shootingTarget = m_EyeRaycaster.CurrentInteractible ? m_EyeRaycaster.CurrentInteractible.GetComponent<ShootingTarget> () : null; // dodać ShooterTarget2 
 

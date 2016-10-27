@@ -53,7 +53,7 @@ namespace VRStandardAssets.ShootingGallery
 
         private void OnDisable ()
         {
-            m_InteractiveItem.OnDown -= HandleDown;
+        //    m_InteractiveItem.OnDown -= HandleDown;
 		//	m_InteractiveCube.OnDown -= HandleDown;
         }
 

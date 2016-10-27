@@ -16,7 +16,6 @@ namespace VRStandardAssets.Utils
         [SerializeField] private LayerMask m_ExclusionLayers;           // Warstwa wyłączająca z raycast. Layers to exclude from the raycast.
 		[SerializeField] private Reticle m_Reticle;                     // Siatka(Reticle), jeżeli dotyczy.
         [SerializeField] private VRInput m_VrInput;                     // Uzywane do wywołąnia podstawowego zdarzenia w aktualnym VRInteractiveItem.
-//		[SerializeField] private VRInput2 m_VrInput2;
         [SerializeField] private bool m_ShowDebugRay;                   // Opcjonalnie pokaż debugowany promień.
         [SerializeField] private float m_DebugRayLength = 5f;           // Debug ray długość.
         [SerializeField] private float m_DebugRayDuration = 1f;         // Jak długo Debug ray pozostanie widoczny.
@@ -27,30 +26,6 @@ namespace VRStandardAssets.Utils
         private VRInteractiveItem m_LastInteractible;                   // Ostani interaktywny element.
                                                                         //		private ExampleTouchpad m_NewInteractible;			// Nowy interaktywny element(cube).
 
-        public bool bPointsAtFriend;
-
-		/*
-		 public ExampleTouchpad NewInteractible
-		  {
-            get { return m_NewInteractible; }
-        }
-		/*
-		private void IsDisable ()
-        {
-            m_VrInput.OnClick -= HandleClick;
-            m_VrInput.OnDoubleClick -= HandleDoubleClick;
-            m_VrInput.OnUp -= HandleUp;
-            m_VrInput.OnDown -= HandleDown;
-        }
-
-		private void IUpdate()
-        {
-            EyeRaycast();
-        }
-
-
-		*/
-		
         // Użyteczności dla innych klas dla odwołania się do obecnego interaktywnego elementu.
         public VRInteractiveItem CurrentInteractible
         {
@@ -81,7 +56,15 @@ namespace VRStandardAssets.Utils
             EyeRaycast();
         }
 
-      
+        private void OnGUI()
+        {
+            if (m_CurrentInteractible != null)
+            {
+                GUI.Label(new Rect(0, 0, 100, 100), m_CurrentInteractible.name); 
+            }
+               
+        }
+
         private void EyeRaycast()
         {
             // Pokaż debug ray jeśli wymagane.
@@ -99,16 +82,6 @@ namespace VRStandardAssets.Utils
             {
                 VRInteractiveItem interactible = hit.collider.GetComponent<VRInteractiveItem>(); //Próba uzyskania dostęp do VRInteractiveItem na objekcie udeżonym.
                 m_CurrentInteractible = interactible;
-
-                if ((hit.collider.name == "SwipeCube") || (hit.collider.name == "SwipeCube1") || (hit.collider.name == "SwipeCube2"))
-                {
-                    bPointsAtFriend = true;
-                }
-                else
-                {
-                    bPointsAtFriend = false;
-                }
-
 
                 //if
                 //VRInteractiveCube interactible = hit.collider.GetComponent<VRInteractiveCube>(); //Próba uzyskania dostęp do ExampleTouchpad (wcześniej doVRInteractiveCube) na objekcie udeżonym.
