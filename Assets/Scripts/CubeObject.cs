@@ -11,15 +11,24 @@ public class CubeObject : MonoBehaviour {
 
     private GameObject mPlayerCamera;
     private VREyeRaycaster mEyeRaycaster;
-    private Vector3 AggregatedRotation; // Collects summary data on object rotation.
+    private Vector3 mAggregatedRotation; // Collects summary data on object rotation.
+    private Spawnable mSpawnableComponent;
+    private StunnerProgressBar mStunnerProgressBar;
 
-	// Use this for initialization
-	void Start () {
+    public StunnerProgressBar StunnerProgressBar
+    {
+        get { return mStunnerProgressBar; }
+        set { mStunnerProgressBar = value; }
+    }
+
+    // Use this for initialization
+    void Start()
+    {
         mPlayerCamera = GameObject.Find("MainCamera");
         if (mPlayerCamera != null)
         {
             mEyeRaycaster = mPlayerCamera.GetComponent<VREyeRaycaster>();
-            if(mEyeRaycaster == null)
+            if (mEyeRaycaster == null)
             {
                 Debug.Log("FATAL ERROR ! EYE RAYCASTER NOT FOUND !");
             }
@@ -28,18 +37,23 @@ public class CubeObject : MonoBehaviour {
         {
             Debug.Log("FATAL ERROR ! PLAYER CAMERA NOT FOUND !");
         }
-            
-    }
 
-	// Update is called once per frame
-	void Update () {
+        mSpawnableComponent = GetComponent<Spawnable>();
+
+        if (mSpawnableComponent == null)
+        {
+            Debug.Log("FATAL ERROR! No spawnable component attached.");
+        }
+    }
+        // Update is called once per frame
+    void Update () {
         InputSwipe();
 
-        if (AggregatedRotation.y >= RotationThreshold || AggregatedRotation.y <= -RotationThreshold)
+        if(mStunnerProgressBar.ProgressBar.value >= 1.0f)
         {
-            Destroy(gameObject);
+            mSpawnableComponent.DestroySpawnable();
         }
-	}
+    }
       
     void InputSwipe()
     {
@@ -54,9 +68,16 @@ public class CubeObject : MonoBehaviour {
 
             mRigidBody.AddTorque(CurrentRotationVector);
 
-            AggregatedRotation += CurrentRotationVector;
+            mAggregatedRotation += CurrentRotationVector;
+
+            mStunnerProgressBar.PostValue = Mathf.Abs(NormalizeAggregatedRotation());
         }
             
+    }
+
+    private float NormalizeAggregatedRotation()
+    {
+        return mAggregatedRotation.y / RotationThreshold;
     }
         
 }
