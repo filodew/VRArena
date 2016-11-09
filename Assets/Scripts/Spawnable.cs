@@ -9,6 +9,14 @@ public class Spawnable : MonoBehaviour {
     private float _TimeLifespan;
     private bool _WasSpawned;
 
+    private Spawning _SpawnedBy;
+
+    public Spawning SpawnedBy
+    {
+        get { return _SpawnedBy; }
+        set { _SpawnedBy = value; }
+    }
+
     public float TimeLifespan 
     { 
         get { return _TimeLifespan; }
@@ -38,10 +46,9 @@ public class Spawnable : MonoBehaviour {
             if (CurrentLifespan >= TimeLifespan) 
             {
                 CurrentLifespan = 0;
-                OnDestroyed (this);
                 _WasSpawned = false;
                 StunPlayer();
-                Destroy(gameObject);
+                DestroySpawnable();
             }
         }
 
@@ -86,5 +93,11 @@ public class Spawnable : MonoBehaviour {
 
         SpawningComponent.IsSpawnedObjectAlive = false;
             
+    }
+
+    public void DestroySpawnable()
+    {
+        OnDestroyed (this);
+        Destroy(gameObject);
     }
 }
